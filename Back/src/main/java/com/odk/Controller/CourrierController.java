@@ -54,17 +54,12 @@ public class CourrierController {
     @PutMapping("/{id}/imputer")
     public ResponseEntity<Courrier> imputerCourrier(
             @PathVariable Long id,
-<<<<<<< HEAD
-            @RequestParam Long entiteCibleId
-    ) {
-        Courrier courrier = courrierService.imputerCourrier(id, entiteCibleId);
-=======
             @RequestParam Long entiteCibleId,
-            @RequestAttribute Utilisateur utilisateurCible
-    ) {
+            @RequestParam(required = false) Utilisateur utilisateurCible
+    ){
         Courrier courrier = courrierService.imputerCourrier(id, entiteCibleId, utilisateurCible);
->>>>>>> c0b91f8 (ARCHIVE -3)
         return ResponseEntity.ok(courrier);
+
     }
 
     /* ======================================================

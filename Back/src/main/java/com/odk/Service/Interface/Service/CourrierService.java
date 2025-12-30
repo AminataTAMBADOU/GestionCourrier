@@ -65,13 +65,9 @@ public class CourrierService {
 
         courrierRepository.save(courrier);
 
-        enregistrerHistorique(
-                courrier,
-                direction,
-                direction.getResponsable(),
-                StatutCourrier.RECU,
-                "Réception du courrier à la direction"
-        );
+       // 5️⃣ Enregistrer l’historique avec l’utilisateur
+    enregistrerHistorique(courrier, courrier.getEntite().getResponsable(), courrier.getEntite(),  StatutCourrier.RECU,
+            "Réception du courrier à la direction");
 
     // 5️⃣ Préparer le mail HTML
     if (direction.getResponsable() != null && direction.getResponsable().getEmail() != null) {
@@ -122,8 +118,8 @@ public class CourrierService {
 
         enregistrerHistorique(
                 courrier,
-                entiteCible,
                 utilisateurCible,
+                entiteCible,
                 StatutCourrier.IMPUTER,
                 commentaire
         );
@@ -167,10 +163,11 @@ public class CourrierService {
 
             enregistrerHistorique(
                     courrier,
+                    utilisateur,
                     courrier.getEntite(),
-                    // utilisateur,
                     StatutCourrier.EN_COURS,
                     "Courrier ouvert et en cours de traitement"
+            );
 
     if (courrier.getStatut() == StatutCourrier.IMPUTER) {
         courrier.setStatut(StatutCourrier.EN_COURS);
@@ -178,8 +175,8 @@ public class CourrierService {
 
         enregistrerHistorique(
                 courrier,
-                courrier.getEntite(),
                 utilisateur,
+                courrier.getEntite(),
                 StatutCourrier.EN_COURS,
                 "Courrier téléchargé et en cours de traitement"
         );
@@ -218,8 +215,8 @@ public class CourrierService {
 
         enregistrerHistorique(
                 courrier,
-                courrier.getEntite(),
                 utilisateur,
+                courrier.getEntite(),
                 StatutCourrier.ARCHIVER,
                 "Courrier archivé"
         );
@@ -253,14 +250,15 @@ public class CourrierService {
      * ====================================================== */
     private void enregistrerHistorique(
             Courrier courrier,
-            Entite entite,
+            Utilisateur utilisateurCible,
+            Entite entiteCible,
             StatutCourrier statut,
             String commentaire
     ) {
         HistoriqueCourrier historique = new HistoriqueCourrier();
         historique.setCourrier(courrier);
-        historique.setEntite(entite);
-        historique.setUtilisateur(utilisateur);
+        historique.setEntite(entiteCible);
+        historique.setUtilisateur(utilisateurCible);
         historique.setStatut(statut);
         historique.setCommentaire(commentaire);
         historique.setDateAction(new Date());
@@ -352,19 +350,5 @@ public void verifierDelaisCourrier() {
         return destination.toString();
     }
 
-    private String sauvegarderFichier(MultipartFile fichier) throws IOException {
-       if (fichier == null || fichier.isEmpty()) return null;
-
-       Path uploadPath = Paths.get(uploadDir);
-       if(!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
-
-         File dossier = new File();
-       if (!dossier.exists()) dossier.mkdirs();
-
-        String nomFichier = System.currentTimeMillis() + "_" + fichier.getOriginalFilename();
-        File destination = new File(uploadPath.toString(), nomFichier);
-        fichier.transferTo(destination);
-
-       return destination.getAbsolutePath();
-     }
+ 
 }
