@@ -29,6 +29,7 @@ import com.odk.Enum.StatutCourrier;
 import com.odk.Repository.CourrierRepository;
 import com.odk.Repository.EntiteOdcRepository;
 import com.odk.Repository.HistoriqueCourrierRepository;
+import com.odk.Repository.UtilisateurRepository;
 import com.odk.dto.CourrierDTO;
 import lombok.RequiredArgsConstructor;
 
@@ -40,6 +41,7 @@ public class CourrierService {
     private final EntiteOdcRepository entiteRepository;
     private final HistoriqueCourrierRepository historiqueRepository;
     private final EmailService emailService;
+    private final UtilisateurRepository utilisateurRepository;
     private final String uploadDir = "uploads/courriers";
 
     /* ======================================================
@@ -103,49 +105,74 @@ public class CourrierService {
 
     public Courrier imputerCourrier(Long courrierId, Long entiteCibleId, Utilisateur utilisateurCible) {
 
-        Courrier courrier = getCourrier(courrierId);
-       
-        //Controlle qui permet de verifier si l'entité existe
-        Entite entiteCible = entiteRepository.findById(entiteCibleId)
-                .orElseThrow(() -> new RuntimeException("Entité cible non trouvée"));
+    Courrier courrier = getCourrier(courrierId);
+   
+    // Vérifier si l'entité cible existe
+    Entite entiteCible = entiteRepository.findById(entiteCibleId)
+            .orElseThrow(() -> new RuntimeException("Entité cible non trouvée"));
 
-           
-        courrier.setEntite(entiteCible);
-        courrier.setStatut(StatutCourrier.IMPUTER);
-        courrierRepository.save(courrier);
-
-        String commentaire=utilisateurCible!=null ? "Courrier affecté à :" +utilisateurCible.getNom():"Courrier imputé à"+entiteCible.getNom();
-
-        enregistrerHistorique(
-                courrier,
-                utilisateurCible,
-                entiteCible,
-                StatutCourrier.IMPUTER,
-                commentaire
-        );
-
-        // EMAIL AU RESPONSABLE DE L'ENTITÉ ou utilisateur affecté
-        // Mail selon type
-        if (utilisateurCible != null && utilisateurCible.getEmail() != null) {
-
-            emailService.sendSimpleEmail(
-            utilisateurCible.getEmail(),
-            "Nouveau courrier à traiter",
-            "<p>Un courrier vous a été affecté : " + courrier.getObjet() + "</p>"
-          );
-        } 
-        else if (entiteCible != null && entiteCible.getResponsable() != null && entiteCible.getResponsable().getEmail() != null) {
-
-            emailService.sendSimpleEmail(
-            entiteCible.getResponsable().getEmail(),
-            "Courrier imputé à votre département",
-           "<p>Un courrier a été imputé à votre département : " + courrier.getObjet() + "</p>"
-        );
-       }
-
-        return courrier;
+    // Récupérer l'utilisateur existant si un id est fourni
+    Utilisateur utilisateur = null;
+    if (utilisateurCible != null && utilisateurCible.getId() != null) {
+        utilisateur = utilisateurRepository.findById(utilisateurCible.getId())
+                .orElseThrow(() -> new RuntimeException("Utilisateur cible non trouvé"));
     }
 
+    courrier.setEntite(entiteCible);
+    courrier.setStatut(StatutCourrier.IMPUTER);
+
+    // Affectation de l'utilisateur
+    courrier.setUtilisateurAffecte(utilisateurCible);
+
+    // ⚡ Initialisation automatique des dates et relances si null
+    Date now = new Date();
+    if (courrier.getDateReception() == null) {
+        courrier.setDateReception(now);
+    }
+    if (courrier.getDateLimite() == null) {
+        // dateLimite = dateReception + 7 jours
+        courrier.setDateLimite(new Date(courrier.getDateReception().getTime() + 7L * 24 * 60 * 60 * 1000));
+    }
+    if (courrier.getDateRelance() == null) {
+        // dateRelance = dateReception + 2 jours
+        courrier.setDateRelance(new Date(courrier.getDateReception().getTime() + 2L * 24 * 60 * 60 * 1000));
+    }
+    // initialiser les flags
+    courrier.setRappelEnvoye(false);
+    courrier.setAlerteEnvoyee(false);
+
+    courrierRepository.save(courrier);
+
+    String commentaire = utilisateur != null
+            ? "Courrier affecté à : " + utilisateur.getNom()
+            : "Courrier imputé à " + entiteCible.getNom();
+
+    // Enregistrer l'historique
+    enregistrerHistorique(
+            courrier,
+            utilisateur,
+            entiteCible,
+            StatutCourrier.IMPUTER,
+            commentaire
+    );
+
+    // Envoi email
+    if (utilisateur != null && utilisateur.getEmail() != null) {
+        emailService.sendSimpleEmail(
+            utilisateur.getEmail(),
+            "Nouveau courrier à traiter",
+            "<p>Un courrier vous a été affecté : " + courrier.getObjet() + "</p>"
+        );
+    } else if (entiteCible.getResponsable() != null && entiteCible.getResponsable().getEmail() != null) {
+        emailService.sendSimpleEmail(
+            entiteCible.getResponsable().getEmail(),
+            "Courrier imputé à votre département",
+            "<p>Un courrier a été imputé à votre département : " + courrier.getObjet() + "</p>"
+        );
+    }
+
+    return courrier;
+}
 
     /* ======================================================
      *  PARTIE 3 : OUVERTURE / DÉBUT DE TRAITEMENT
