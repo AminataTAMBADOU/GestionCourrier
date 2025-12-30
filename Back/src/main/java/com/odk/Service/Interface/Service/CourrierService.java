@@ -3,16 +3,13 @@ package com.odk.Service.Interface.Service;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-<<<<<<< HEAD
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-=======
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
->>>>>>> c0b91f8 (ARCHIVE -3)
 import java.util.Date;
 import java.util.List;
 
@@ -71,7 +68,7 @@ public class CourrierService {
         enregistrerHistorique(
                 courrier,
                 direction,
-                // direction.getResponsable(),
+                direction.getResponsable(),
                 StatutCourrier.RECU,
                 "Réception du courrier à la direction"
         );
@@ -107,11 +104,8 @@ public class CourrierService {
     /* ======================================================
      *  PARTIE 2 : IMPUTATION (DIRECTEUR)
      * ====================================================== */
-<<<<<<< HEAD
-    public Courrier imputerCourrier(Long courrierId, Long entiteCibleId) {
-=======
+
     public Courrier imputerCourrier(Long courrierId, Long entiteCibleId, Utilisateur utilisateurCible) {
->>>>>>> c0b91f8 (ARCHIVE -3)
 
         Courrier courrier = getCourrier(courrierId);
        
@@ -129,11 +123,7 @@ public class CourrierService {
         enregistrerHistorique(
                 courrier,
                 entiteCible,
-<<<<<<< HEAD
-                // utilisateur,
-=======
                 utilisateurCible,
->>>>>>> c0b91f8 (ARCHIVE -3)
                 StatutCourrier.IMPUTER,
                 commentaire
         );
@@ -174,14 +164,14 @@ public class CourrierService {
         throw new RuntimeException("Fichier non trouvé");
     }
 
-<<<<<<< HEAD
+
             enregistrerHistorique(
                     courrier,
                     courrier.getEntite(),
                     // utilisateur,
                     StatutCourrier.EN_COURS,
                     "Courrier ouvert et en cours de traitement"
-=======
+
     if (courrier.getStatut() == StatutCourrier.IMPUTER) {
         courrier.setStatut(StatutCourrier.EN_COURS);
         courrierRepository.save(courrier);
@@ -200,7 +190,7 @@ public class CourrierService {
                     "Courrier en cours de traitement",
                     "<p>Vous avez ouvert le courrier :</p>"
                             + "<p><b>Objet :</b> " + courrier.getObjet() + "</p>"
->>>>>>> c0b91f8 (ARCHIVE -3)
+
             );
         }
     }
@@ -229,7 +219,7 @@ public class CourrierService {
         enregistrerHistorique(
                 courrier,
                 courrier.getEntite(),
-                // utilisateur,
+                utilisateur,
                 StatutCourrier.ARCHIVER,
                 "Courrier archivé"
         );
@@ -270,7 +260,7 @@ public class CourrierService {
         HistoriqueCourrier historique = new HistoriqueCourrier();
         historique.setCourrier(courrier);
         historique.setEntite(entite);
-        // historique.setUtilisateur(utilisateur);
+        historique.setUtilisateur(utilisateur);
         historique.setStatut(statut);
         historique.setCommentaire(commentaire);
         historique.setDateAction(new Date());
@@ -362,19 +352,19 @@ public void verifierDelaisCourrier() {
         return destination.toString();
     }
 
-    // private String sauvegarderFichier(MultipartFile fichier) throws IOException {
-    //     if (fichier == null || fichier.isEmpty()) return null;
+    private String sauvegarderFichier(MultipartFile fichier) throws IOException {
+       if (fichier == null || fichier.isEmpty()) return null;
 
-    //      Path uploadPath = Paths.get(uploadDir);
-    //     if(!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
+       Path uploadPath = Paths.get(uploadDir);
+       if(!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
 
-    //     // File dossier = new File();
-    //     // if (!dossier.exists()) dossier.mkdirs();
+         File dossier = new File();
+       if (!dossier.exists()) dossier.mkdirs();
 
-    //     String nomFichier = System.currentTimeMillis() + "_" + fichier.getOriginalFilename();
-    //     File destination = new File(uploadPath.toString(), nomFichier);
-    //     fichier.transferTo(destination);
+        String nomFichier = System.currentTimeMillis() + "_" + fichier.getOriginalFilename();
+        File destination = new File(uploadPath.toString(), nomFichier);
+        fichier.transferTo(destination);
 
-    //     return destination.getAbsolutePath();
-    // }
+       return destination.getAbsolutePath();
+     }
 }
