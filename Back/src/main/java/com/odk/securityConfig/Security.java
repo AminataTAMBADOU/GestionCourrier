@@ -4,6 +4,7 @@ import com.odk.Service.Interface.Service.UtilisateurService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -66,12 +67,15 @@ public class Security {
                  .requestMatchers("/api/supports").hasAnyRole("PERSONNEL","SUPERADMIN") //Get all...
                  .requestMatchers("/api/supports/**").hasAnyRole("PERSONNEL","SUPERADMIN") //Get by id, POST, PUT, DELETE...
 
-                                        //Endpoints Fichiers&Tailles ...
+                                        //Acces Endpoints Fichiers&Tailles ...
 
                  .requestMatchers("/api/stats").hasAnyRole("PERSONNEL","SUPERADMIN")  //Get All ...
                  .requestMatchers("/api/stats/**").hasAnyRole("PERSONNEL","SUPERADMIN") //Get by id, POST, PUT, DELETE ...
-                 
-                 
+
+                                        //Acces Endpoints Fichiers&Tailles ...
+                
+                 .requestMatchers(HttpMethod.PUT, "/api/courriers/**").hasAnyRole("PERSONNEL","SUPERADMIN")
+
                            /*.requestMatchers("/typeActivite/**").hasAnyRole("PERSONNEL","SUPERADMIN")
                              .requestMatchers("/typeActivite/**").permitAll()
                              .requestMatchers(GET,"/typeActivite/by-entite/**").hasAnyRole("SUPERADMIN","PERSONNEL")

@@ -271,6 +271,8 @@ public class SupportActiviteService {
         SupportActiviteResponseDTO dto = new SupportActiviteResponseDTO();
         dto.setId(support.getId());
         dto.setNom(support.getNom());
+        // ✅ Correction ici : vérifier si type est null avant d'appeler .name()
+        dto.setType(support.getType() != null ? support.getType().name() : "INCONNU");
         dto.setType(support.getType().name());
         dto.setUrl(support.getUrl());
         dto.setStatut(support.getStatut());
