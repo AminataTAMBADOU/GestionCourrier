@@ -165,7 +165,7 @@ public ResponseEntity<Resource> doawloadSupport(@PathVariable Long id, Principal
 }
 
  // ---------------- Upload nouveau avec validation ----------------
-    @PostMapping("/upload-validated")
+    @PostMapping(value = "/upload-validated", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SupportActiviteResponseDTO> uploadSupportValidated(
             @RequestParam("file") MultipartFile file,
             @RequestParam("idActivite") Long idActivite,

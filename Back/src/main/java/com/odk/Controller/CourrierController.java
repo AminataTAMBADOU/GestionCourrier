@@ -7,12 +7,16 @@ import java.util.List;
 
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.odk.Entity.Courrier;
 import com.odk.Entity.Utilisateur;
 import com.odk.Service.Interface.Service.CourrierService;
+import com.odk.Service.Interface.Service.UtilisateurService;
 import com.odk.dto.CourrierDTO;
 
 @RestController
@@ -20,9 +24,11 @@ import com.odk.dto.CourrierDTO;
 public class CourrierController {
 
     private final CourrierService courrierService;
+    private final UtilisateurService utilisateurService;
 
-    public CourrierController(CourrierService courrierService) {
+    public CourrierController(CourrierService courrierService,UtilisateurService utilisateurService) {
         this.courrierService = courrierService;
+        this.utilisateurService = utilisateurService;
     }
 
     /* ======================================================
@@ -68,7 +74,7 @@ public class CourrierController {
   @GetMapping("/{id}/ouvrir")
    public ResponseEntity<InputStreamResource> ouvrirCourrier(
         @PathVariable Long id,
-        @RequestAttribute Utilisateur utilisateur
+        @AuthenticationPrincipal Utilisateur utilisateur
       ) throws IOException {
     return courrierService.ouvrirCourrier(id, utilisateur);
     }
@@ -76,13 +82,13 @@ public class CourrierController {
     /* ======================================================
      *  PARTIE 4 : ARCHIVAGE
      * ====================================================== */
-    @PutMapping("/{id}/archiver")
-    public ResponseEntity<Void> archiverCourrier(
+        @PutMapping("/{id}/archiver")
+         public ResponseEntity<Void> archiverCourrier(
             @PathVariable Long id,
-            @RequestAttribute Utilisateur utilisateur
-    ) {
-        courrierService.archiverCourrier(id, utilisateur);
-        return ResponseEntity.ok().build();
+            @AuthenticationPrincipal Utilisateur utilisateur
+         ) {
+            courrierService.archiverCourrier(id, utilisateur);
+            return ResponseEntity.ok().build();
     }
 
     /* ======================================================
