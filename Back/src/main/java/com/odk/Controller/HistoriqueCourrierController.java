@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.odk.Entity.HistoriqueCourrier;
 import com.odk.Service.Interface.Service.HistoriqueCourrierService;
+import com.odk.dto.HistoriqueCourrierDTO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,4 +37,20 @@ public class HistoriqueCourrierController {
 
         return ResponseEntity.ok(dtos);
     }
+    private HistoriqueCourrierDTO mapToDto(HistoriqueCourrier h) {
+    HistoriqueCourrierDTO dto = new HistoriqueCourrierDTO();
+    dto.setStatut(h.getStatut().name());
+    dto.setCommentaire(h.getCommentaire());
+    dto.setDateAction(h.getDateAction());
+
+    dto.setUtilisateur(
+            h.getUtilisateur() != null ? h.getUtilisateur().getNom() : "Système"
+    );
+
+    dto.setEntite(
+            h.getEntite() != null ? h.getEntite().getNom() : null
+    );
+
+    return dto;
+}
 }
