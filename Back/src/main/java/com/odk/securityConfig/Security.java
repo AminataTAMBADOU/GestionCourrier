@@ -75,6 +75,7 @@ public class Security {
                                         //Acces Endpoints Fichiers&Tailles ...
                 
                  .requestMatchers(HttpMethod.PUT, "/api/courriers/**").hasAnyRole("PERSONNEL","SUPERADMIN")
+                 .requestMatchers(HttpMethod.PUT, "/api/historique/**").hasAnyRole("PERSONNEL","SUPERADMIN")
 
                            /*.requestMatchers("/typeActivite/**").hasAnyRole("PERSONNEL","SUPERADMIN")
                              .requestMatchers("/typeActivite/**").permitAll()

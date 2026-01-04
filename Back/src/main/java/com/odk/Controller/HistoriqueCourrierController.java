@@ -3,6 +3,7 @@ package com.odk.Controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,12 +25,14 @@ public class HistoriqueCourrierController {
 
     @GetMapping("/courrier/{courrierId}")
     public ResponseEntity<List<HistoriqueCourrierDTO>> getHistorique(
-            @PathVariable Long courrierId,
-            @RequestParam Long utilisateurId
+            @PathVariable Long courrierId
+        //     @AuthenticationPrincipal Long utilisateurId
     ) {
+        System.err.println("------=------->"+courrierId);
+        // System.err.println("-----utilisateurId-=------->"+utilisateurId);
         List<HistoriqueCourrier> historiques =
                 historiqueService.getHistoriqueCourrierAutorise(
-                        courrierId, utilisateurId);
+                        courrierId);
 
         List<HistoriqueCourrierDTO> dtos = historiques.stream()
                 .map(this::mapToDto)

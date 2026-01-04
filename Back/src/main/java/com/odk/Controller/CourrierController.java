@@ -82,7 +82,7 @@ public class CourrierController {
     /* ======================================================
      *  PARTIE 4 : ARCHIVAGE
      * ====================================================== */
-        @PutMapping("/archiver/{id}")
+        @PatchMapping("/archiver/{id}")
          public ResponseEntity<Void> archiverCourrier(
             @PathVariable Long id,
             @AuthenticationPrincipal Utilisateur utilisateur
